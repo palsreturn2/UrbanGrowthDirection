@@ -33,10 +33,12 @@ def test(X,model,R, Bt, Btnxt, DV_G):
 	start_time = time.time()
 	DV_P = np.ndarray.flatten(naive.gen_direction_angles(R,Bt,Btpred))
 	print 'Time ',time.time()-start_time
-	print sklearn.metrics.mean_squared_error(DV_G,DV_P)
+	print 'Error: UGDV ',sklearn.metrics.mean_squared_error(DV_G,DV_P)
 	#io.imsave('./results/BtnxtRBWFE.png', np.transpose(Btnxt))
 	#io.imshow(np.transpose(Btpred))
 	#io.show()
+
+
 
 if __name__ == "__main__":
 	X = np.load('X.npy')

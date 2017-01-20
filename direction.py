@@ -73,8 +73,8 @@ def visualize3(R,w):
 	beta = w[4]-w[2]
 	gamma = w[3]-w[1]
 	plt.imshow(np.transpose(R[0]))
-	Q = plt.quiver(np.array(shp[2]/2),np.array(shp[1]/2),np.array(-beta),np.array(-gamma))
-	qk = plt.quiverkey(Q, 0.5, 0.92, 2, 'UGDV', labelpos='W', fontproperties={'weight': 'bold'})
+	Q = plt.quiver(np.array(shp[1]/2),np.array(shp[2]/2),np.array(-5*beta),np.array(-5*gamma))
+	#qk = plt.quiverkey(Q, 0.5, 0.92, 2, '', labelpos='W', fontproperties={'weight': 'bold'})
 	plt.show()	
 
 if __name__ == "__main__":

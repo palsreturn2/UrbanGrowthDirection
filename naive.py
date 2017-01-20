@@ -37,9 +37,9 @@ def get_direction(W,v):
 def get_direction_angle(d):
 	pi = 3.14
 	if(d==1):
-		return 3*pi/2
+		return -pi/2
 	elif(d==2):
-		return 5*pi/4
+		return -3*pi/4
 	elif(d==3):
 		return pi
 	elif(d==4):
@@ -51,7 +51,7 @@ def get_direction_angle(d):
 	elif(d==7):
 		return 0
 	elif(d==8):
-		return 7*pi/4
+		return -pi/4
 	else:
 		return 0
 

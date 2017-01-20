@@ -5,7 +5,53 @@ import direction as DIRECTION
 import sys
 import geninput as INPUT
 import naive as NAIVE
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+import sklearn.metrics
 
+def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
+	shp = Bt.shape
+	PX = []
+	PY = []
+	DX = []
+	DY = []
+	GT = []
+	DA = []
+	for i in range(0, shp[0], chunk_size):
+		for j in range(0, shp[1], chunk_size):
+			if(R[0][i][j]!=0):
+				startx = i
+				starty = j
+				endx = min(shp[0],i+chunk_size)
+				endy = min(shp[1],j+chunk_size)
+				Rchunk = R[:, startx:endx, starty:endy]
+				Btchunk = Bt[startx:endx, starty:endy]
+				Btnxtchunk = Btnxt[startx:endx, starty:endy]
+				dmapschunk = [] 
+				for k in range(0,len(dmaps)):
+					dmapschunk.append(dmaps[k][startx:endx, starty:endy])
+				D = Dataset()
+				X,Y = D.create_dataset(Rchunk,Btchunk,Btnxtchunk,dmapschunk)
+				w, model = TRAIN.train(X,Y)
+				alpha = w[0]+w[1]+w[2]+w[3]+w[4] - 1
+				beta = w[4]-w[2]
+				gamma = w[3]-w[1]
+				PX.append((startx+endx)/2)
+				PY.append((starty+endy)/2)
+				DX.append(-beta/math.sqrt(beta*beta+gamma*gamma+1))
+				DY.append(-gamma/math.sqrt(beta*beta+gamma*gamma+1))
+				window = NAIVE.create_window(Btnxt,(startx+endx)/2,(starty+endy)/2)
+				GT.append(NAIVE.get_direction_angle(NAIVE.get_direction(window, Bt[(startx+endx)/2][(starty+endy)/2])))
+				DA.append(math.atan(gamma/beta))
+				
+	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(GT))
+	plt.imshow(np.transpose(R[0]))
+	Q = plt.quiver(np.array(PX),np.array(PY),np.array(DX),np.array(DY))
+	plt.show()
+	return			
+				
+	
 if __name__=="__main__":
 	data_folder = sys.argv[1]
 	
@@ -31,6 +77,10 @@ if __name__=="__main__":
 	dmaps = [D_F,D_B,D_W,D_R]
 	D = Dataset()
 	X,Y = D.create_dataset(R,Bt,Btnxt,dmaps)
+	
+	#Direction Summary
+	direction_summary(Btnxt.reshape([1, Btnxt.shape[0], Btnxt.shape[1]]), Bt, Btnxt, dmaps, chunk_size = 100)
+	exit()
 	
 	#Training model
 	params, model = TRAIN.train(X,Y)

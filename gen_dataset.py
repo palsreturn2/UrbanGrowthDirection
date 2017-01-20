@@ -50,7 +50,7 @@ class Dataset:
 		D = np.array(D)
 		W = np.array(W)
 		if(distancemaps!=[]):
-			D = D/(np.max(D,axis=0)-np.min(D,axis=0))
+			D = D/((np.max(D,axis=0)-np.min(D,axis=0))+0.001)
 			self.X =np.concatenate([W,D,np.ones([D.shape[0],1])],axis=1)
 		
 		else:
