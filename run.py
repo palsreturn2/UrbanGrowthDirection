@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import sklearn.metrics
+import scipy.stats
 
 def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 	shp = Bt.shape
@@ -18,6 +19,9 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 	DY = []
 	GT = []
 	DA = []
+	mean_angle=[]
+	median_angle = []
+	mode_angle = []
 	for i in range(0, shp[0], chunk_size):
 		for j in range(0, shp[1], chunk_size):
 			if(R[0][i][j]!=0):
@@ -39,13 +43,19 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 				gamma = w[3]-w[1]
 				PX.append((startx+endx)/2)
 				PY.append((starty+endy)/2)
-				DX.append(-beta/math.sqrt(beta*beta+gamma*gamma+1))
-				DY.append(-gamma/math.sqrt(beta*beta+gamma*gamma+1))
-				window = NAIVE.create_window(Btnxt,(startx+endx)/2,(starty+endy)/2)
-				GT.append(NAIVE.get_direction_angle(NAIVE.get_direction(window, Bt[(startx+endx)/2][(starty+endy)/2])))
+				DX.append(beta/math.sqrt(beta*beta+gamma*gamma+1))
+				DY.append(gamma/math.sqrt(beta*beta+gamma*gamma+1))
+				#window = NAIVE.create_window(Btnxt,(startx+endx)/2,(starty+endy)/2)
+				#GT.append(NAIVE.get_direction_angle(NAIVE.get_direction(window, Bt[(startx+endx)/2][(starty+endy)/2])))
 				DA.append(math.atan(gamma/beta))
+				GT = NAIVE.gen_direction_angles(Rchunk, Btchunk, Btnxtchunk)
+				mean_angle.append(np.mean(GT))
+				median_angle.append(np.median(GT))
+				#mode_angle.append(scipy.stats.mode(GT))
 				
-	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(GT))
+	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(mean_angle))
+	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(median_angle))
+	#print sklearn.metrics.mean_squared_error(np.array(DA),np.array(mode_angle))
 	plt.imshow(np.transpose(R[0]))
 	Q = plt.quiver(np.array(PX),np.array(PY),np.array(DX),np.array(DY))
 	plt.show()
@@ -79,7 +89,7 @@ if __name__=="__main__":
 	X,Y = D.create_dataset(R,Bt,Btnxt,dmaps)
 	
 	#Direction Summary
-	direction_summary(Btnxt.reshape([1, Btnxt.shape[0], Btnxt.shape[1]]), Bt, Btnxt, dmaps, chunk_size = 100)
+	direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 100)
 	exit()
 	
 	#Training model

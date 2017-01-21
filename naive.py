@@ -65,6 +65,7 @@ def gen_direction_angles(R,Bt,Btnxt):
 				d = get_direction(w,Bt[i][j])
 				DV.append(get_direction_angle(d))
 	return np.array(DV)
+
 	
 def ageBuiltUp(R, Bt, Btnxt, age):
 	shp = Bt.shape
