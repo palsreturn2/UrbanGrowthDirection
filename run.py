@@ -22,6 +22,8 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 	mean_angle=[]
 	median_angle = []
 	mode_angle = []
+	n_mean_angle = []
+	n_median_angle = []
 	for i in range(0, shp[0], chunk_size):
 		for j in range(0, shp[1], chunk_size):
 			if(R[0][i][j]!=0):
@@ -38,6 +40,7 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 				D = Dataset()
 				X,Y = D.create_dataset(Rchunk,Btchunk,Btnxtchunk,dmapschunk)
 				w, model = TRAIN.train(X,Y)
+				P = model.predict(X)
 				alpha = w[0]+w[1]+w[2]+w[3]+w[4] - 1
 				beta = w[4]-w[2]
 				gamma = w[3]-w[1]
@@ -49,13 +52,17 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 				#GT.append(NAIVE.get_direction_angle(NAIVE.get_direction(window, Bt[(startx+endx)/2][(starty+endy)/2])))
 				DA.append(math.atan(gamma/beta))
 				GT = NAIVE.gen_direction_angles(Rchunk, Btchunk, Btnxtchunk)
+				M,N = NAIVE.eval_naive_mean_median(Rchunk, Btchunk, P)
+				n_mean_angle.append(M)
+				n_median_angle.append(N)
 				mean_angle.append(np.mean(GT))
 				median_angle.append(np.median(GT))
 				#mode_angle.append(scipy.stats.mode(GT))
 				
 	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(mean_angle))
 	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(median_angle))
-	#print sklearn.metrics.mean_squared_error(np.array(DA),np.array(mode_angle))
+	print sklearn.metrics.mean_squared_error(np.array(n_mean_angle),np.array(mean_angle))
+	print sklearn.metrics.mean_squared_error(np.array(n_median_angle),np.array(median_angle))
 	plt.imshow(np.transpose(R[0]))
 	Q = plt.quiver(np.array(PX),np.array(PY),np.array(DX),np.array(DY))
 	plt.show()

@@ -66,6 +66,16 @@ def gen_direction_angles(R,Bt,Btnxt):
 				DV.append(get_direction_angle(d))
 	return np.array(DV)
 
+def eval_naive_mean_median(R,Bt,P):
+	Btpred = np.zeros(Bt.shape)
+	k=0
+	for i in range(0,Bt.shape[0]):
+		for j in range(0,Bt.shape[1]):
+			if(R[0][i][j]!=0):
+				Btpred[i][j]=P[k]
+				k=k+1
+	NA = gen_direction_angles(R,Bt,Btpred)
+	return np.mean(NA), np.median(NA)
 	
 def ageBuiltUp(R, Bt, Btnxt, age):
 	shp = Bt.shape
