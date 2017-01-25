@@ -10,6 +10,8 @@ import numpy as np
 import math
 import sklearn.metrics
 import scipy.stats
+import time
+import metrics
 
 def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 	shp = Bt.shape
@@ -24,6 +26,8 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 	mode_angle = []
 	n_mean_angle = []
 	n_median_angle = []
+	time_ugdv = 0
+	time_naive = 0
 	for i in range(0, shp[0], chunk_size):
 		for j in range(0, shp[1], chunk_size):
 			if(R[0][i][j]!=0):
@@ -50,19 +54,27 @@ def direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 50):
 				DY.append(gamma/math.sqrt(beta*beta+gamma*gamma+1))
 				#window = NAIVE.create_window(Btnxt,(startx+endx)/2,(starty+endy)/2)
 				#GT.append(NAIVE.get_direction_angle(NAIVE.get_direction(window, Bt[(startx+endx)/2][(starty+endy)/2])))
+				start_time = time.time()
 				DA.append(math.atan(gamma/beta))
+				time_ugdv = max(time.time()-start_time,time_ugdv)
+				
 				GT = NAIVE.gen_direction_angles(Rchunk, Btchunk, Btnxtchunk)
+				start_time = time.time()
 				M,N = NAIVE.eval_naive_mean_median(Rchunk, Btchunk, P)
+				time_naive = max(time_naive, time.time()-start_time)
+				
 				n_mean_angle.append(M)
 				n_median_angle.append(N)
 				mean_angle.append(np.mean(GT))
 				median_angle.append(np.median(GT))
 				#mode_angle.append(scipy.stats.mode(GT))
 				
-	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(mean_angle))
-	print sklearn.metrics.mean_squared_error(np.array(DA),np.array(median_angle))
-	print sklearn.metrics.mean_squared_error(np.array(n_mean_angle),np.array(mean_angle))
-	print sklearn.metrics.mean_squared_error(np.array(n_median_angle),np.array(median_angle))
+	print metrics.angle_rmse(np.array(DA),np.array(mean_angle))
+	print metrics.angle_rmse(np.array(DA),np.array(median_angle))
+	print metrics.angle_rmse(np.array(n_mean_angle),np.array(mean_angle))
+	print metrics.angle_rmse(np.array(n_median_angle),np.array(median_angle))
+	print time_ugdv, time_naive
+	
 	plt.imshow(np.transpose(R[0]))
 	Q = plt.quiver(np.array(PX),np.array(PY),np.array(DX),np.array(DY))
 	plt.show()
@@ -96,7 +108,7 @@ if __name__=="__main__":
 	X,Y = D.create_dataset(R,Bt,Btnxt,dmaps)
 	
 	#Direction Summary
-	direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 100)
+	direction_summary(R, Bt, Btnxt, dmaps, chunk_size = 300)
 	exit()
 	
 	#Training model
